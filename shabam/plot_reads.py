@@ -43,6 +43,19 @@ def plot_read(context, bases, quals=None, x_offset=0, y_offset=0, width=None,
         context.rectangle(x=x_pos, y=y_offset, width=10, height=10)
         context.set_source_rgba(*(COLORS[base] + [to_alpha(qual)]))
         context.fill()
+        
+        # add the base inside
+        if base == 'M':
+            plotbase = '.'
+        else:
+            plotbase = base
+        context.select_font_face('Arial')
+        context.set_font_size(8)
+        context.set_source_rgb(0, 0, 0)
+        context.move_to(x_pos + 2, y_offset + 8)
+        context.show_text(plotbase)
+        
+    return(x_pos)
 
 def to_alpha(qual, threshold=35):
     ''' convert base quality to an alpha transparency float
