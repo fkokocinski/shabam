@@ -46,6 +46,7 @@ seqplot('example.bam', chrom='1', start=30243, end=30321,
 ## Modification in this repo
 - [ ] Write the base identity of the reference sequence into the plot
 - [ ] Write the base identity of the reads into the plot where there are changes to the reference. Write '.' for matching bases.
+- [ ] Use 1-based system to label the referce.
 - [ ] Option to write the name of the reference sequence and of each read next to the sequences. The width of the image is slightly increased for this. If multiple reads are plotted in a line, only the first name is used.
 
 Example call:
