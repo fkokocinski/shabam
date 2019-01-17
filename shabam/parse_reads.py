@@ -53,7 +53,7 @@ def get_y_offset(read, coords):
     Args:
         read: dictionary with 'position' and 'bases' entries e.g.
             {'position': 15555, bases ['M', 'MTA', 'M']}
-        positions: ordered dictionary of max end position at each row, indexed
+        coords: ordered dictionary of max end position at each row, indexed
             by row number e.g. {10: 100, 20: 150, 30: 50}
     
     Returns:
