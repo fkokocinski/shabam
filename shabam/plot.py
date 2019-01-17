@@ -13,8 +13,20 @@ from shabam.utils import get_height, fileformat
 from shabam.plot_coverage import plot_coverage
 from shabam.coverage import get_coverage
 
+
+def _print_name(context, x_pos, y_pos, textstring, font_size=8):
+    '''
+    writes then name of the sequence or read at the end of the sequence
+    '''    
+    context.select_font_face('Arial')
+    context.set_font_size(font_size)
+    context.set_source_rgb(0, 0, 0)
+    context.move_to(x_pos, y_pos)
+    context.show_text(textstring)
+    
+    
 def _plot(context, reads, start, end, axis_offset, height, ref_seq=None,
-        by_strand=False):
+        by_strand=False, refname=False):
     ''' plots reads to the Context
     
     Args:
@@ -26,6 +38,7 @@ def _plot(context, reads, start, end, axis_offset, height, ref_seq=None,
         height: total height of the plotted image in pixels.
         ref_seq: reference sequence within plotting window (or None)
         by_strand: whether to shade reads by strand
+        refname: name of the reference sequence
     
     Returns:
         max end position at each row, indexed by row number
@@ -33,7 +46,10 @@ def _plot(context, reads, start, end, axis_offset, height, ref_seq=None,
     '''
     
     if ref_seq is not None:
-        plot_read(context, ref_seq, y_offset=axis_offset - 10)
+        x_endofseq = plot_read(context, ref_seq, y_offset=axis_offset - 10)
+        if refname:
+            y_offset = axis_offset - 10
+            _print_name(context, x_endofseq + 15, y_offset + 8, refname, font_size=10)
     
     width = (end - start) * 10
     
@@ -41,12 +57,17 @@ def _plot(context, reads, start, end, axis_offset, height, ref_seq=None,
         if read is None:
             continue
         
-        plot_read(context, read['bases'], read['qualities'],
-            read['position'] - start, read['offset'], width, read['is_reverse'],
-            by_strand)
+        x_endofseq = plot_read(context, read['bases'], read['qualities'],
+                     read['position'] - start, read['offset'], width, read['is_reverse'],
+                     by_strand)
+        if refname:
+            y_offset = read['offset']
+            refname = read['name']
+            _print_name(context, x_endofseq + 15, y_offset + 8, refname)
     
-    plot_axis(context, start, end, axis_offset - 10)
-    plot_grid(context, start, end, axis_offset, height)
+    # use 1-based system for x-ticks
+    plot_axis(context, start+1, end+1, axis_offset - 10)
+    plot_grid(context, start, end, axis_offset, height - 10)
 
 def insert_spacer(context, coords, start, end):
     ''' combine data for one or more bams into a single array
@@ -77,7 +98,7 @@ def insert_spacer(context, coords, start, end):
 
     return coords
 
-def seqplot(seqfiles, chrom, start, end, fastafile, out=None, by_strand=False):
+def seqplot(seqfiles, chrom, start, end, fastafile, out=None, by_strand=False, add_names=False, verbose=False):
     ''' the plotting function
     
     Args:
@@ -88,6 +109,8 @@ def seqplot(seqfiles, chrom, start, end, fastafile, out=None, by_strand=False):
         fastafile: path to reference FASTA file.
         out: path to write image file to, or None to return bytes-encoded png
         by_strand: whether to shade reads by strand
+        add_names: whether to print the name of the reference and the reads next to the sequence
+        verbose: whether to print additional information to STDOUT
     
     Returns:
         None, or if out is None, returns image plot as bytes-encoded png
@@ -96,24 +119,32 @@ def seqplot(seqfiles, chrom, start, end, fastafile, out=None, by_strand=False):
     if type(seqfiles) is not list:
         seqfiles = [seqfiles]
     
+    if add_names:
+        extraspace = 150
+    
+    if verbose:
+        print("FILE = {}\nREGION = {}:{}-{}".format(fastafile, chrom, start, end))
+        
     chrom = str(chrom)
+        
     with pysam.FastaFile(fastafile) as handle:
-        reference = handle.fetch(start=start, end=end, region=chrom)
+        reference = handle.fetch(chrom, start, end)
         ref = reference
     
     axis_offset = 75
     height = get_height(seqfiles, chrom, start, end, axis_offset)
     
-    out_type, surface = fileformat(out, width=(end - start) * 10, height=height)
+    out_type, surface = fileformat(out, width=(end - start) * 10 + extraspace, height=height)
     context = cairo.Context(surface)
     
     depths = [axis_offset]
     for seqfile in seqfiles:
         seq = pysam.AlignmentFile(seqfile, 'rb')
+        refname = seq.get_reference_name(0)
         coords = OrderedDict({max(depths): -1e9})
         reps = ( parse_read(x, coords, ref, start) for x in seq.fetch(chrom, start, end) )
         
-        _plot(context, reps, start, end, axis_offset, height, reference, by_strand)
+        _plot(context, reps, start, end, axis_offset, height, reference, by_strand, refname)
         reference = None # don't plot the reference in subsequent BAMs
         
         if seqfiles.index(seqfile) < len(seqfiles) - 1:
