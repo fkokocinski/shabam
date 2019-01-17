@@ -43,22 +43,22 @@ seqplot('example.bam', chrom='1', start=30243, end=30321,
   --out plot.svg
 ```
 
-## Further improvements to the dream
-- [ ] Use consensus sequence when we don't provide a reference sequence
-- [ ] Allow custom colors
-- [ ] Compute proportion of variants at any site
-- [ ] Plot read depth
-- [ ] At positions with proportion of variants > threshold, reflect proportion
-  with base colors
-- [ ] Option to scale plotted base size, currently at 10 pixels per base
-- [ ] Optionally shade plots deepVariant style:
-    - red channel: nucleotide
-    - blue channel: read strand
-    - green channel: base quality
-    - alpha: base supports ref or alt
-- [ ] Flatten vertical plotting in high depth sequence data
-- [ ] Down-sample reads for extremely high depth sequence data (>1000X)
+## Modification in this repo
+- [ ] Write the base identity of the reference sequence into the plot
+- [ ] Write the base identity of the reads into the plot where there are changes to the reference. Write '.' for matching bases.
+- [ ] Option to write the name of the reference sequence and of each read next to the sequences. The width of the image is slightly increased for this. If multiple reads are plotted in a line, only the first name is used.
+
+Example call:
+```
+seqplot('example.bam', chrom='1', start=30243, end=30321,
+    fastafile='reference.fasta', out='plot.svg', add_names=True)
+```
+Example output:
+![Reality](/tests/data/reality2.png)
+
 
 ## Credit
+Further info at the source repo of [Daniel Rice](https://github.com/dlrice/shabam)
+
 Initial cigar parsing code lifted with permission from
 [pybamview](https://github.com/mgymrek/pybamview).
