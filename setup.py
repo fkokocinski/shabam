@@ -3,8 +3,8 @@ from setuptools import setup
 
 setup(
     name = "shabam",
-    version = "1.0.0",
-    author = "Daniel Rice",
+    version = "1.0.1",
+    author = "Daniel Rice & Felix Kokocinski",
     author_email = "daniel.rice@sanger.ac.uk",
     description = ("Easy sequence alignment plots"),
     license = "GPL",
