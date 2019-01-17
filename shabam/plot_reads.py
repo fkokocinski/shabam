@@ -55,7 +55,7 @@ def plot_read(context, bases, quals=None, x_offset=0, y_offset=0, width=None,
         context.move_to(x_pos + 2, y_offset + 8)
         context.show_text(plotbase)
         
-    return(x_pos)
+    return(x_pos, y_offset)
 
 def to_alpha(qual, threshold=35):
     ''' convert base quality to an alpha transparency float
