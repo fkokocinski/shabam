@@ -23,7 +23,8 @@ def parse_read(read, coords, ref=None, start=0):
     data = {'position': read.pos,
             'bases': parse_cigar(read.cigartuples, read.query),
             'is_reverse': read.is_reverse,
-            'qualities': parse_cigar(read.cigartuples, read.query_qualities)}
+            'qualities': parse_cigar(read.cigartuples, read.query_qualities),
+            'name': read.query_name}
     
     # convert reference matches to 'M', so we can later color as reference bases
     if ref is not None:
