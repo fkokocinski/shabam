@@ -11,12 +11,12 @@ brew install cairo; CAIRO=`brew --prefix cairo`
 export DYLD_LIBRARY_PATH=${CAIRO}
 ```
 
-Install shabam:
+Install this version of shabam:
 ```sh
-pip install git+git://github.com/dlrice/shabam.git --user
+pip install git+git://github.com/fkokocinski/shabam.git --user
 ```
 
-## The dream
+## The orginal version
 ```py
 from shabam import seqplot
 seqplot('example.bam', chrom='1', start=30243, end=30321,
@@ -43,7 +43,7 @@ seqplot('example.bam', chrom='1', start=30243, end=30321,
   --out plot.svg
 ```
 
-## Modification in this repo
+## Modification in this fork
 - [ ] Write the base identity of the reference sequence into the plot
 - [ ] Write the base identity of the reads into the plot where there are changes to the reference. Write '.' for matching bases.
 - [ ] Use 1-based system to label the referce.
