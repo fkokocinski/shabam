@@ -2,6 +2,7 @@
 from __future__ import division
 
 from shabam.colors import COLORS
+import cairocffi as cairo
 
 def plot_read(context, bases, quals=None, x_offset=0, y_offset=0, width=None,
         is_reverse=False, by_strand=False):
@@ -76,7 +77,7 @@ def plot_insertion(context, bases, x_pos, y_offset):
     '''
     
     # select a font, and figure out the text sizes, so we can align text
-    context.select_font_face('Arial')
+    context.select_font_face('Arial', cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_BOLD)
     context.set_font_size(7)
     _, _, width, _, _, _ = context.text_extents(bases)
     
