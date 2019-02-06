@@ -25,7 +25,7 @@ def _print_name(context, x_pos, y_pos, textstring, font_size=8):
     context.show_text(textstring)
     
     
-def _plot(context, reads, start, end, axis_offset, height, ref_seq=None,
+def _plot(context, reads, start, end, axis_offset, height, right_border, ref_seq=None,
         by_strand=False, refname=False):
     ''' plots reads to the Context
     
@@ -47,31 +47,36 @@ def _plot(context, reads, start, end, axis_offset, height, ref_seq=None,
     
     if ref_seq is not None:
         x_endofrefseq, y_seqplot = plot_read(context, ref_seq, y_offset=axis_offset - 10)
+        right_border = x_endofrefseq
         if refname:
             y_offset = axis_offset - 10
             _print_name(context, x_endofrefseq + 15, y_offset + 8, refname, font_size=10)
-    
+
     width = (end - start) * 10
     
     y_coords = {}
     for read in reads:
         if read is None:
             continue
-        
+        # adding space to see insertions in first row
+        read['offset'] += 8
         (x_endofseq, y_seqplot) = plot_read(context, read['bases'], read['qualities'],
                                 read['position'] - start, read['offset'], width, 
                                 read['is_reverse'], by_strand)
+
         # if desired write out the name of the read
         # use first read in a row to avoid over-plotting the names
         if refname and (y_seqplot not in y_coords):
             y_coords[y_seqplot] = 1
             y_offset = read['offset']
             refname = read['name']
-            _print_name(context, x_endofrefseq + 15, y_offset + 8, refname)
+            _print_name(context, right_border + 15, y_offset + 8, refname)
     
     # use 1-based system for x-ticks
     plot_axis(context, start+1, end+1, axis_offset - 10)
     plot_grid(context, start, end, axis_offset, height - 10)
+
+    return right_border
 
 def insert_spacer(context, coords, start, end):
     ''' combine data for one or more bams into a single array
@@ -119,7 +124,6 @@ def seqplot(seqfiles, chrom, start, end, fastafile, out=None, by_strand=False, a
     Returns:
         None, or if out is None, returns image plot as bytes-encoded png
     '''
-    
     if type(seqfiles) is not list:
         seqfiles = [seqfiles]
     
@@ -144,13 +148,15 @@ def seqplot(seqfiles, chrom, start, end, fastafile, out=None, by_strand=False, a
     context = cairo.Context(surface)
     
     depths = [axis_offset]
+    right_border = 0
     for seqfile in seqfiles:
         seq = pysam.AlignmentFile(seqfile, 'rb')
         refname = seq.get_reference_name(0)
         coords = OrderedDict({max(depths): -1e9})
         reps = ( parse_read(x, coords, ref, start) for x in seq.fetch(chrom, start, end) )
+
+        right_border = _plot(context, reps, start, end, axis_offset, height, right_border, reference, by_strand, refname)
         
-        _plot(context, reps, start, end, axis_offset, height, reference, by_strand, refname)
         reference = None # don't plot the reference in subsequent BAMs
         
         if seqfiles.index(seqfile) < len(seqfiles) - 1:
