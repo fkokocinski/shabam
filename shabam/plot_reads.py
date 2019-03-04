@@ -76,6 +76,10 @@ def plot_insertion(context, bases, x_pos, y_offset):
         y_offset: y position to plot the read at
     '''
     
+    # show only extra bases
+    bases = bases[0:len(bases)-1]
+    # place before the next correct base (compensate for +10 below)
+    x_pos -= 10
     # select a font, and figure out the text sizes, so we can align text
     context.select_font_face('Arial', cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_BOLD)
     context.set_font_size(7)
