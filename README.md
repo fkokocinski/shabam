@@ -49,6 +49,7 @@ seqplot('example.bam', chrom='1', start=30243, end=30321,
 - [ ] Use 1-based system to label the referce.
 - [ ] Option to write the name of the reference sequence and of each read next to the sequences. The width of the image is slightly increased for this. If multiple reads are plotted in a line, only the first name is used.
 - [ ] For insertions only write out the extra bases, not additionally the next reference base.
+- [ ] Add some space between the reference sequence and the first reads to allow for insertions in the first line (which are printed above the actual line).
 
 Example call:
 ```
